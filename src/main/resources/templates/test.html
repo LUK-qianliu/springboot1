@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Study</title>
+    <!-- 引入 echarts.js -->
+    <script src="echarts/echarts.min.js"></script>
+    <!--引入jquery:因为此处用到了json传值-->
+    <script src="echarts/jquery.js"></script>
+</head>
+<body>
+    <!-- 为ECharts准备一个具备大小（宽高）的Dom -->
+    <div id="main" style="width: 800px;height:400px;position: absolute;top: 50%;left: 50%;margin-top: -200px;margin-left: -400px;"></div>
+    <script type="text/javascript">
+        // 基于准备好的dom，初始化echarts实例
+        var myChart = echarts.init(document.getElementById('main'));
+
+        option = {
+            title : {
+                text: '学习网课程浏览量实时统计',
+                subtext: '实施课程访问次数',
+                x:'center'
+            },
+            tooltip : {
+                trigger: 'item',
+                formatter: "{a} <br/>{b} : {c} ({d}%)"
+            },
+            legend: {
+                orient: 'vertical',
+                left: 'left',
+                data: ['Spark SQL慕课网日志分析','10小时入门大数据','深度学习之神经网络核心原理与算法',
+                    '强大的Node.js在Web开发的应用','Vue+Django实战','Web前端性能优化']
+            },
+            series : [
+                {
+                    name: '访问来源',
+                    type: 'pie',
+                    radius : '55%',
+                    center: ['50%', '60%'],
+                    data:(function(){
+                        var datas = [];
+                        $.ajax({
+                            type: "POST",
+                            url: "/course_clickcount_dynamic",
+                            dataType: 'json',
+                            async: false,
+                            success: function(result) {
+                                for(var i=0; i<result.length; i++) {
+                                    datas.push({"value":result[i].value, "name":result[i].name})
+                                }
+                            }
+                        })
+                        return datas;
+
+                    })(),
+                    itemStyle: {
+                        emphasis: {
+                            shadowBlur: 10,
+                            shadowOffsetX: 0,
+                            shadowColor: 'rgba(0, 0, 0, 0.5)'
+                        }
+                    }
+                }
+            ]
+        };
+
+        // 使用刚指定的配置项和数据显示图表。
+        myChart.setOption(option);
+    </script>
+</body>
+</html>
